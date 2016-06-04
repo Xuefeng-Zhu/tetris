@@ -27,7 +27,7 @@ class Piece:
 
     def __init__(self):
         type_index = random.randint(0, len(self.TYPES) - 1)
-        self.shape = self.TYPES[4]
+        self.shape = self.TYPES[type_index]
         self._update_bound()
 
         self.y = self.height - 1
