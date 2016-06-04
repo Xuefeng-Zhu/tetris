@@ -2,39 +2,42 @@ from __future__ import print_function
 
 from display import Display
 from piece import Piece
+from config import ACTIONS, OverlapError
 
 
 class Manager:
-    MOVES = {
-        'a': 'move_left',
-        'd': 'move_right',
-        'w': 'rotate_counter_clockwise',
-        's': 'rotate_clockwise'
-    }
 
     def __init__(self):
         self.display = Display()
         self._spawn_piece()
 
     def _spawn_piece(self):
+        self.display.update_board()
         self.current_piece = Piece()
-        self.display.add_piece(self.current_piece)
-        self.display.draw()
+        try:
+            self.display.add_piece(self.current_piece)
+            self.display.draw()
+        except OverlapError:
+            print('Game Over')
+            exit()
 
     def game_loop(self):
-        user_input = raw_input('Please enter a move: ').strip()
-        move = self.MOVES.get(user_input)
+        move = raw_input('Please enter a move: ').strip()
+        action = ACTIONS.get(move)
 
-        if move is None:
+        if action is None:
             print('Entered move does not exist! Try again.')
-            return self.game_loop()
+            return
 
-        bound = self.display.get_piece_bound()
-        move = getattr(self.current_piece, move)
-
-        if not move(bound):
+        self.current_piece.move(action)
+        try:
+            self.display.show_piece()
+        except OverlapError:
+            self.current_piece.undo()
             print('Invalid move! Try again.')
-            return self.game_loop()
+            return
 
-        self.current_piece.y += 1
-
+        if self.display.check_valid_moves():
+            self.display.draw()
+        else:
+            self._spawn_piece()

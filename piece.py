@@ -27,7 +27,7 @@ class Piece:
 
     def __init__(self):
         type_index = random.randint(0, len(self.TYPES) - 1)
-        self.shape = self.TYPES[type_index]
+        self.shape = self.TYPES[4]
         self._update_bound()
 
         self.y = self.height - 1
@@ -38,7 +38,7 @@ class Piece:
         self._update_bottom()
         self._update_left_right()
 
-        self.height = self.top - self.bottom + 1
+        self.height = self.bottom - self.top + 1
         self.width = self.right - self.left + 1
 
     def _update_top(self):
@@ -69,40 +69,30 @@ class Piece:
         self.left = left
         self.right = right
 
-    def move_left(self, bound):
-        if self.x <= bound.left:
-            return False
+    def move(self, action):
+        self.old_x = self.x
+        self.old_shape = self.shape
+        self.y += 1
+        getattr(self, action)()
+        self._update_bound()
 
+    def undo(self):
+        self.x = self.old_x
+        self.shape = self.old_shape
+        self.y -= 1
+        self._update_bound()
+
+    def move_left(self):
         self.x -= 1
-        return True
 
-    def move_right(self, bound):
-        if self.x + self.width - 1 >= bound.right:
-            return False
-
+    def move_right(self):
         self.x += 1
-        return True
 
-    def rotate_counter_clockwise(self, bound):
-        old_shape = self.shape
-        self.shape = zip(*old_shape)[::-1]
-        self._update_bound()
+    def move_down(self):
+        pass
 
-        if self.x + self.width - 1 > bound.right:
-            self.shape = old_shape
-            self._update_bound()
-            return False
+    def rotate_counter_clockwise(self):
+        self.shape = zip(*self.shape)[::-1]
 
-        return True
-
-    def rotate_clockwise(self, bound):
-        old_shape = self.shape
-        self.shape = zip(*old_shape[::-1])
-        self._update_bound()
-
-        if self.x + self.width - 1 > bound.right:
-            self.shape = old_shape
-            self._update_bound()
-            return False
-
-        return True
+    def rotate_clockwise(self):
+        self.shape = zip(*self.shape[::-1])

@@ -1,11 +1,12 @@
 from __future__ import print_function
 import copy
 
-from config import HEIGHT, WIDTH, OverlapError
+from config import HEIGHT, WIDTH, ACTIONS, OverlapError
 
 
 class Display:
     def __init__(self):
+        self.current_piece = None
         self.board = [[False] * WIDTH for _ in range(HEIGHT)]
 
     def draw(self):
@@ -29,39 +30,53 @@ class Display:
         cp = self.current_piece
 
         if not new_piece:
-            self.board = copy.deepcopy(self.board)
+            self.board = copy.deepcopy(self.old_board)
 
         for i, row in enumerate(cp.shape):
             for j, elm in enumerate(row):
                 if elm:
-                    x = cp.x + (i - cp.left)
-                    y = cp.y - (cp.bottom - j)
+                    y = cp.y - (cp.bottom - i)
+                    x = cp.x + (j - cp.left)
+
+                    print(y, cp.y, x, cp.x)
+                    if x < 0 or x >= WIDTH or \
+                            y < 0 or y >= HEIGHT:
+                        raise OverlapError
+
+                    if self.board[y][x]:
+                        raise OverlapError
+
                     self.board[y][x] = True
 
-    def get_piece_bound(self):
-        cp = self.current_piece
-        bound = {
-            'left': 0,
-            'right': WIDTH - 1
-        }
-        row = self.board(cp.y)
-
-        for i in range(cp.x - 1, 0, -1):
-            if row[i]:
-                bound['left'] = i
-                break
-
-        for i in range(cp.x + 1, WIDTH):
-            if row[i]:
-                bound['right'] = i
-                break
-
     def check_valid_moves(self):
+        print(self.current_piece.y)
         if self.current_piece.y == HEIGHT - 1:
             return False
 
         cp = self.current_piece
-        self.current_piece = copy.deepcopy(cp)
-        self.current_piece.y += 1
 
-        bound = self.get_piece_bound()
+        for action in ACTIONS.values():
+            self.current_piece = copy.deepcopy(cp)
+            self.current_piece.move(action)
+
+            try:
+                self.show_piece()
+                self.current_piece = cp
+                return True
+            except OverlapError:
+                pass
+
+        self.current_piece = cp
+        return False
+
+    def update_board(self):
+        if not self.current_piece:
+            return
+
+        cp = self.current_piece
+        for i in range(cp.height):
+            row = self.board[cp.y - i]
+
+            if all(row):
+                self.board.remove(row)
+                self.board.insert(0, [False] * WIDTH)
