@@ -12,6 +12,9 @@ class Manager:
         self._spawn_piece()
 
     def _spawn_piece(self):
+        '''
+            Produce a new piece
+        '''
         self.display.update_board()
         self.current_piece = Piece()
         try:
@@ -22,6 +25,9 @@ class Manager:
             exit()
 
     def game_loop(self):
+        '''
+            Execute for each user input
+        '''
         move = raw_input('Please enter a move: ').strip()
         action = ACTIONS.get(move)
 

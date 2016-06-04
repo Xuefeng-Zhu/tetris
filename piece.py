@@ -34,6 +34,9 @@ class Piece:
         self.x = random.randint(0, WIDTH - self.width)
 
     def _update_bound(self):
+        '''
+            Get bound information for the piece
+        '''
         self._update_top()
         self._update_bottom()
         self._update_left_right()
@@ -70,6 +73,9 @@ class Piece:
         self.right = right
 
     def move(self, action):
+        '''
+            Dispatch the action to specifc movement
+        '''
         self.old_x = self.x
         self.old_shape = self.shape
         self.y += 1
@@ -77,6 +83,9 @@ class Piece:
         self._update_bound()
 
     def undo(self):
+        '''
+            Undo previous movement
+        '''
         self.x = self.old_x
         self.shape = self.old_shape
         self.y -= 1

@@ -10,6 +10,9 @@ class Display:
         self.board = [[False] * WIDTH for _ in range(HEIGHT)]
 
     def draw(self):
+        '''
+            Print out tetris board
+        '''
         for row in self.board:
             print('*', end='')
             for elm in row:
@@ -22,11 +25,17 @@ class Display:
         print('*' * (WIDTH + 2))
 
     def add_piece(self, piece):
+        '''
+            Add a new piece into the board
+        '''
         self.current_piece = piece
         self.old_board = copy.deepcopy(self.board)
         self.show_piece(True)
 
     def show_piece(self, new_piece=False):
+        '''
+            update the board values to show current piece position
+        '''
         cp = self.current_piece
 
         if not new_piece:
@@ -48,6 +57,9 @@ class Display:
                     self.board[y][x] = True
 
     def check_valid_moves(self):
+        '''
+            Check if there is possible valid movements for current piece
+        '''
         if self.current_piece.y == HEIGHT - 1:
             return False
 
@@ -70,6 +82,9 @@ class Display:
         return False
 
     def update_board(self):
+        '''
+            Update board to eliminate row has been fully filled
+        '''
         if not self.current_piece:
             return
 
